@@ -1,4 +1,4 @@
-shudown-dialog
+shutdown-dialog
 ==============
 
 pygtk shutdown, reboot, hibernate, logout

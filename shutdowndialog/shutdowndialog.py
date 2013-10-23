@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  untitled.py
+#  shutdowndialog.py
 #  
 #  Copyright 2013 Azis Ws aka mijortsa<azis.astrojim@surabaya.di.blankon.in>
 #  

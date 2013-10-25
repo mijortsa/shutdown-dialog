@@ -34,14 +34,13 @@ class ShutDownDialog:
     def __init__(self):
 		
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        #color = gtk.gdk.color_parse('#1A1A1A')
-        #self.window.modify_bg(gtk.STATE_NORMAL, color)
         self.window.set_title("")
-        self.window.set_size_request(500,180)
+        self.window.set_size_request(500,165)
         self.window.set_position(gtk.WIN_POS_CENTER) 
         self.window.set_resizable(False)
         self.window.set_skip_taskbar_hint(True)
-        self.window.set_decorated(False)
+        self.window.set_decorated(True)
+        self.window.show()
 
         # Create packing boxes. Outer level is vertical containing
         # Label upper, then horizontal box lower.
@@ -63,9 +62,9 @@ class ShutDownDialog:
        
         # Label for message
         self.label = gtk.Label()
-        self.label.set_line_wrap(True)
+        self.label.set_line_wrap(False)
         self.label.set_use_markup(True)
-        self.label.set_markup("<span size='11000'>Save and close all programs before continuing one action. and to abort clicked cancel</span>")
+        self.label.set_markup("<span>Save and close all programs and select one action or cancel</span>")
         
         # Add the vertical elementals
         self.box0.pack_start(self.label, False, False, 0)
@@ -138,15 +137,15 @@ class ShutDownDialog:
         gtk.main()      
  
     def shutdown(self, widget = None, data = None):
-        os.system("dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager org.freedesktop.ConsoleKit.Manager.Stop")
+        os.system("dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager org.freedesktop.ConsoleKit.Manager.Stop &")
         gtk.main_quit()
      
     def reboot(self, widget = None, data = None):
-        os.system("dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager org.freedesktop.ConsoleKit.Manager.Restart")
+        os.system("dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager org.freedesktop.ConsoleKit.Manager.Restart &")
         gtk.main_quit()
     
     def hibernate(self, widget = None, data = None):
-        os.system("dbus-send --print-reply --system --dest=org.freedesktop.UPower /org/freedesktop/UPower org.freedesktop.UPower.Suspend")
+        os.system("dbus-send --print-reply --system --dest=org.freedesktop.UPower /org/freedesktop/UPower org.freedesktop.UPower.Hibernate &")
         gtk.main_quit()
 
 # If the program is run directly or passed as an argument to the python

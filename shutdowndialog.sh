@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/share/shutdowndialog/shutdowndialog
+/usr/share/shutdowndialog/shutdowndialog.py

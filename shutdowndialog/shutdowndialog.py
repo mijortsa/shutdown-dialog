@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 #  shutdowndialog.py
-#  
-#  Copyright 2013 Azis Ws aka mijortsa<azis.astrojim@surabaya.di.blankon.in>
+#  Versi 2.0
+#  Copyright 2013 Azis Ws <azis.astrojim@surabaya.di.blankon.in>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -20,136 +20,156 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #  
+#  
 
-import pygtk
-import subprocess
-pygtk.require("2.0")
+import dbus
 import gtk
 import os
-import sys
 
-class ShutDownDialog:
-
-    """init function - draws the window and does setup"""
+class DBusExecutor(object):
+# ConsoleKit - to reboot and shutdown (system bus) 
+    ConsoleKitService = 'org.freedesktop.ConsoleKit'
+    ConsoleKitPath = '/org/freedesktop/ConsoleKit/Manager'
+    ConsoleKitInterface = 'org.freedesktop.ConsoleKit.Manager'
+# UPower - to hibernate and suspend (system bus)
+    UPowerService = 'org.freedesktop.UPower'
+    UPowerPath = '/org/freedesktop/UPower'
+    UPowerInterface = UPowerService
+ 
     def __init__(self):
-		
+        self.__bus = dbus.SystemBus()
+
+    def restart(self, widget=None):
+        obj = self.__bus.get_object(self.ConsoleKitService, self.ConsoleKitPath)
+        manager = dbus.Interface(obj, self.ConsoleKitInterface)
+        if manager.CanRestart():
+            manager.Restart()
+            self.logout()
+ 
+    def shutdown(self, widget=None):
+        obj = self.__bus.get_object(self.ConsoleKitService, self.ConsoleKitPath)
+        manager = dbus.Interface(obj, self.ConsoleKitInterface)
+        if manager.CanStop():
+            manager.Stop()
+            self.logout()
+ 
+    def suspend(self, widget=None):
+        obj = self.__bus.get_object(self.UPowerService, self.UPowerPath)
+        manager = dbus.Interface(obj, self.UPowerInterface)
+        if manager.SuspendAllowed():
+            manager.Suspend()
+            self.cancel()
+ 
+    def hibernate(self, widget=None):
+        obj = self.__bus.get_object(self.UPowerService, self.UPowerPath)
+        manager = dbus.Interface(obj, self.UPowerInterface)
+        if manager.HibernateAllowed():
+            manager.Hibernate()
+            self.cancel()
+ 
+    def cancel(self, widget=None):
+        # Check if we're already in gtk.main loop
+        if gtk.main_level() > 0:
+            gtk.main_quit()
+        else:
+            exit(1)
+ 
+class BiggerButton(gtk.Button):
+    def __init__(self, label=None):
+        gtk.Button.__init__(self, label, use_underline=True)
+        self.set_size_request(0, 80)
+ 
+class OBShutdown(object):
+	
+    def __init__(self):
+        self.executor = DBusExecutor()
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title("")
-        self.window.set_size_request(500,165)
-        self.window.set_position(gtk.WIN_POS_CENTER) 
-        self.window.set_resizable(False)
-        self.window.set_skip_taskbar_hint(True)
-        self.window.set_decorated(True)
-        self.window.show()
-
-        # Create packing boxes. Outer level is vertical containing
-        # Label upper, then horizontal box lower.
-        self.box0 = gtk.VBox(False, 15)
-        self.box1 = gtk.HBox(False, 0)
-        
-
-        # Add the veritcal box to the window
-        self.window.add(self.box0)
-    
-        # hook up delete callback to event
-        #self.window.connect("delete_event", self.delete_event)
-    
-        # hook up destroy callback to event
-        #self.window.connect("destroy", self.destroy)
-    
-        # Sets the border width of the window.
+        self.window.set_size_request(440,165)
         self.window.set_border_width(10)
-       
-        # Label for message
+        self.window.connect("destroy", self.executor.cancel)
+
+        self.box0 = gtk.VBox(False, 0)
+        self.box1 = gtk.HBox(False, 0)
+        self.box2 = gtk.HBox(False, 0)
+        self.window.add(self.box0)
+
+        # Add the vertical elementals
         self.label = gtk.Label()
         self.label.set_line_wrap(False)
         self.label.set_use_markup(True)
-        self.label.set_markup("<span>Save and close all programs and select one action or cancel</span>")
+        self.label.set_markup("<span>Save all programs and select one action or cancel</span>")
         
-        # Add the vertical elementals
-        self.box0.pack_start(self.label, False, False, 0)
-        self.box0.pack_start(self.box1, False, False, 0)
-        
-        # Creates Shutdown buttons        
-        image1 = gtk.Image()
-        image1.set_from_file("/usr/share/shutdowndialog/image/shutdown.png")
-        image1.show()
-        self.shutdown_button = gtk.Button()
-        self.shutdown_button.add(image1)
-        self.shutdown_button.show()
-        
-        # Creates Reboot buttons
-        image2 = gtk.Image()
-        image2.set_from_file("/usr/share/shutdowndialog/image/reboot.png")
-        image2.show()
-        self.reboot_button = gtk.Button()
-        self.reboot_button.add(image2)
-        self.reboot_button.show()
-        
-        # Creates Hibernate buttons
-        image3 = gtk.Image()
-        image3.set_from_file("/usr/share/shutdowndialog/image/hibernate.png")
-        image3.show()
-        self.hibernate_button = gtk.Button()
-        self.hibernate_button.add(image3)
-        self.hibernate_button.show()
-        
-        # Creates Cancel buttons
-        image4 = gtk.Image()
-        image4.set_from_file("/usr/share/shutdowndialog/image/cancel.png")
-        image4.show()
-        self.cancel_button = gtk.Button()
-        self.cancel_button.add(image4)
-        self.cancel_button.show()
-    
-        # Hook up enable button to callback on click event
-        self.shutdown_button.connect("clicked", self.shutdown)
-        self.reboot_button.connect("clicked", self.reboot)
-        self.hibernate_button.connect("clicked", self.hibernate)
-    
-        # Hook up the cancel button to destroy callback on click event
-        self.cancel_button.connect_object("clicked", gtk.Widget.destroy, self.window)
-    
-        # This packs the buttons into the horizontal box (container).
-        self.box1.pack_start(self.cancel_button, True, True, 10)
-        self.cancel_button.show()
-
-        self.box1.pack_start(self.hibernate_button, True, True, 10)
-        self.hibernate_button.show()
-        
-        self.box1.pack_start(self.reboot_button, True, True, 10)
-        self.reboot_button.show()
-
-        self.box1.pack_start(self.shutdown_button, True, True, 10)
-        self.shutdown_button.show()
-
-        # Make the items visible...
-        self.label.show()
-        self.box1.show()
-        self.box0.show()
-    
-        # Make the window visible...
-        self.window.show()
-    
-    def main(self):
-        # All PyGTK applications must have a gtk.main(). Control ends here
-        # and waits for an event to occur (like a key press or mouse event).
-        gtk.main()      
+        self.box0.pack_start(self.label, False, False, 5)
+        self.box0.pack_start(self.box1, False, False, 5)
+        self.box0.pack_start(self.box2, False, False, 0)
  
-    def shutdown(self, widget = None, data = None):
-        os.system("dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager org.freedesktop.ConsoleKit.Manager.Stop &")
-        gtk.main_quit()
-     
-    def reboot(self, widget = None, data = None):
-        os.system("dbus-send --system --print-reply --dest=org.freedesktop.ConsoleKit /org/freedesktop/ConsoleKit/Manager org.freedesktop.ConsoleKit.Manager.Restart &")
-        gtk.main_quit()
-    
-    def hibernate(self, widget = None, data = None):
-        os.system("dbus-send --print-reply --system --dest=org.freedesktop.UPower /org/freedesktop/UPower org.freedesktop.UPower.Hibernate &")
-        gtk.main_quit()
+        icon_size = gtk.ICON_SIZE_DIALOG
 
-# If the program is run directly or passed as an argument to the python
-# interpreter then create a HelloWorld instance and show it
+        #Cancel
+        cancel_btn = BiggerButton()
+        icon = gtk.image_new_from_icon_name('application-exit', icon_size)
+        icon.set_pixel_size(70)
+        cancel_btn.set_property('image', icon)
+        cancel_btn.connect('clicked', self.executor.cancel)
+        self.box1.pack_start(cancel_btn, True, True, 10)
+        
+        text = gtk.Label('Cancel')
+        text.set_size_request(80, 20)
+        self.box2.pack_start(text, True, True, 10)
+
+        #sep = gtk.VSeparator()
+        #self.box1.pack_start(sep, True, True, 0)
+ 
+        #Restart
+        restart_btn = BiggerButton()
+        icon = gtk.image_new_from_icon_name('gnome-session-reboot', icon_size)
+        icon.set_pixel_size(70)
+        restart_btn.set_property('image', icon)
+        restart_btn.connect('clicked', self.executor.restart)
+        self.box1.pack_start(restart_btn, True, True, 10)
+        
+        text = gtk.Label('Restart')
+        text.set_size_request(80, 20)
+        self.box2.pack_start(text, True, True, 10)
+ 
+        #Hibernate
+        hibernate_btn = BiggerButton()
+        icon = gtk.image_new_from_icon_name('gnome-session-hibernate', icon_size)
+        icon.set_pixel_size(70)
+        hibernate_btn.set_property('image', icon)
+        hibernate_btn.connect('clicked', self.executor.hibernate)
+        self.box1.pack_start(hibernate_btn, True, True, 10)
+
+        text = gtk.Label('Hibernate')
+        text.set_size_request(80, 20)
+        self.box2.pack_start(text, True, True, 10)
+
+        #Shutdown
+        shutdown_btn = BiggerButton()
+        icon = gtk.image_new_from_icon_name('gnome-shutdown', icon_size)
+        icon.set_pixel_size(70)
+        shutdown_btn.set_property('image', icon)
+        shutdown_btn.connect('clicked', self.executor.shutdown)
+        self.box1.pack_start(shutdown_btn, True, True, 10)
+ 
+        text = gtk.Label('Shutdown')
+        text.set_size_request(80, 10)
+        self.box2.pack_start(text, True, True, 10)
+ 
+        self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
+        self.window.set_skip_taskbar_hint(True)
+        self.window.stick()
+        self.window.set_decorated(True)
+        self.window.show_all()
+
+    def main(self):
+        try:
+            gtk.main()
+        except KeyboardInterrupt:
+            pass
+ 
 if __name__ == "__main__":
-    launcher = ShutDownDialog()
-    launcher.main()
+    obs = OBShutdown()
+    obs.main()
+

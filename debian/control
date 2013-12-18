@@ -1,0 +1,15 @@
+Source: shutdowndialog
+Section: unknown
+Priority: extra
+Maintainer: BlankOn Developers <BlankOn-dev@googlegroups.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: https://github.com/mijortsa/shutdown-dialog
+#Vcs-Git: git://github.com/mijortsa/shutdown-dialog.git
+#Vcs-Browser: https://github.com/mijortsa/shutdown-dialog
+
+Package: shutdowndialog
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, python2.7
+Description: dialog shutdown and logout WM, DM
+ alterante dialog shutdown and logout have fun Manokwari

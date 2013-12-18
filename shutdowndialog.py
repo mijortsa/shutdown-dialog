@@ -73,94 +73,115 @@ class DBusExecutor(object):
             gtk.main_quit()
         else:
             exit(1)
- 
+
 class BiggerButton(gtk.Button):
     def __init__(self, label=None):
         gtk.Button.__init__(self, label, use_underline=True)
-        self.set_size_request(0, 80)
+        self.set_size_request(0, 60)
  
 class OBShutdown(object):
 	
     def __init__(self):
         self.executor = DBusExecutor()
+        
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.set_title("")
-        self.window.set_size_request(440,165)
-        self.window.set_border_width(10)
+        self.window.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('#1A1A1A'))
+        self.window.set_size_request(360,160)
+        self.window.set_decorated(False)
+        self.window.set_border_width(5)
+
         self.window.connect("destroy", self.executor.cancel)
 
         self.box0 = gtk.VBox(False, 0)
         self.box1 = gtk.HBox(False, 0)
         self.box2 = gtk.HBox(False, 0)
+        self.box3 = gtk.HBox(False, 0)
+        self.box4 = gtk.VBox(False, 0)
         self.window.add(self.box0)
 
         # Add the vertical elementals
         self.label = gtk.Label()
+        self.label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color('#ccc'))
         self.label.set_line_wrap(False)
         self.label.set_use_markup(True)
-        self.label.set_markup("<span>Save all programs and select one action or cancel</span>")
+        self.label.set_markup("Save all programs and select one action or cancel")
         
-        self.box0.pack_start(self.label, False, False, 5)
-        self.box0.pack_start(self.box1, False, False, 5)
+        self.box0.pack_start(self.box3, False, False, 0)
+        self.box0.pack_start(self.box4, False, False, 0)
+        
+        self.box0.pack_start(self.label, False, False, 3)
+        self.box0.pack_start(self.box1, False, False, 4)
         self.box0.pack_start(self.box2, False, False, 0)
  
         icon_size = gtk.ICON_SIZE_DIALOG
+        
+        #cancel_btn = gtk.Button(' X ')
+        #cancel_btn.set_border_width(0)
+        #cancel_btn.connect('clicked', self.executor.cancel)
+        #self.box3.pack_start(cancel_btn, False, False, 325)
+        
+        sep = gtk.HSeparator()
+        sep.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('#444'))
+        self.box4.pack_start(sep, False, False, 3)
 
         #Cancel
-        cancel_btn = BiggerButton()
+        cancel_btn = gtk.Button()
+        cancel_btn.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('#1A1A1A'))
         icon = gtk.image_new_from_icon_name('application-exit', icon_size)
-        icon.set_pixel_size(70)
+        icon.set_pixel_size(16)
         cancel_btn.set_property('image', icon)
         cancel_btn.connect('clicked', self.executor.cancel)
-        self.box1.pack_start(cancel_btn, True, True, 10)
+        self.box3.pack_start(cancel_btn, False, False, 325)
         
-        text = gtk.Label('Cancel')
-        text.set_size_request(80, 20)
-        self.box2.pack_start(text, True, True, 10)
+        #text = gtk.Label('Cancel')
+        #text.set_size_request(60, 25)
+        #self.box5.pack_start(text, True, True, 25)
 
-        #sep = gtk.VSeparator()
-        #self.box1.pack_start(sep, True, True, 0)
- 
         #Restart
         restart_btn = BiggerButton()
+        restart_btn.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('#1A1A1A'))
         icon = gtk.image_new_from_icon_name('gnome-session-reboot', icon_size)
-        icon.set_pixel_size(70)
+        icon.set_pixel_size(50)
         restart_btn.set_property('image', icon)
         restart_btn.connect('clicked', self.executor.restart)
-        self.box1.pack_start(restart_btn, True, True, 10)
+        self.box1.pack_start(restart_btn, True, True, 40)
         
         text = gtk.Label('Restart')
-        text.set_size_request(80, 20)
-        self.box2.pack_start(text, True, True, 10)
+        text.modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color('#ccc'))
+        text.set_size_request(50, 15)
+        self.box2.pack_start(text, True, True, 40)
  
         #Hibernate
         hibernate_btn = BiggerButton()
+        hibernate_btn.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('#1A1A1A'))
         icon = gtk.image_new_from_icon_name('gnome-session-hibernate', icon_size)
-        icon.set_pixel_size(70)
+        icon.set_pixel_size(50)
         hibernate_btn.set_property('image', icon)
         hibernate_btn.connect('clicked', self.executor.hibernate)
-        self.box1.pack_start(hibernate_btn, True, True, 10)
+        self.box1.pack_start(hibernate_btn, True, True, 0)
 
         text = gtk.Label('Hibernate')
-        text.set_size_request(80, 20)
-        self.box2.pack_start(text, True, True, 10)
+        text.modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color('#ccc'))
+        text.set_size_request(50, 0)
+        self.box2.pack_start(text, True, True, 0)
 
         #Shutdown
-        shutdown_btn = BiggerButton()
+        shutdown_btn =BiggerButton()
+        shutdown_btn.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color('#1A1A1A'))
         icon = gtk.image_new_from_icon_name('gnome-shutdown', icon_size)
-        icon.set_pixel_size(70)
+        icon.set_pixel_size(50)
         shutdown_btn.set_property('image', icon)
         shutdown_btn.connect('clicked', self.executor.shutdown)
-        self.box1.pack_start(shutdown_btn, True, True, 10)
+        self.box1.pack_start(shutdown_btn, True, True, 40)
  
         text = gtk.Label('Shutdown')
-        text.set_size_request(80, 10)
-        self.box2.pack_start(text, True, True, 10)
+        text.modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color('#ccc'))
+        text.set_size_request(50, 0)
+        self.box2.pack_start(text, True, True, 40)
  
         self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
         self.window.set_skip_taskbar_hint(True)
         self.window.stick()
-        self.window.set_decorated(True)
         self.window.show_all()
 
     def main(self):

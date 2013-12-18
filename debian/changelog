@@ -1,0 +1,30 @@
+shutdowndialog (0.5) suroboyo; urgency=medium
+
+  * repaint dialog
+
+ -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Sat, 14 Dec 2013 22:10:22 +0700
+
+shutdowndialog (0.4) suroboyo; urgency=low
+
+  * allowed user access
+
+ -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Sat, 09 Nov 2013 15:02:08 +0700
+
+shutdowndialog (0.3) suroboyo; urgency=low
+
+  * Load icon button from icon-theme default
+  * Added Suspend button session
+
+ -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Sat, 09 Nov 2013 13:53:02 +0700
+
+shutdowndialog (0.2) suroboyo; urgency=low
+
+  * error line 3 shudowndialog
+
+ -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Thu, 07 Nov 2013 06:35:37 +0700
+
+shutdowndialog (0.1) suroboyo; urgency=low
+
+  * Initial release
+
+ -- mijortsa <azis.astrojim@surabaya.di.blankon.in>  Wed, 06 Nov 2013 15:46:35 +0700
